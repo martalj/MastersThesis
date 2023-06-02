@@ -1,0 +1,41 @@
+import pandas as pd
+import tensorflow as tf
+from tensorflow import keras
+
+url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data'
+column_names = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
+                'Acceleration', 'Model Year', 'Origin']
+
+raw_dataset = pd.read_csv(url, names = column_names, na_values = '?', comment = '\t', sep = ' ', skipinitialspace=True)
+
+dataset = raw_dataset.copy()
+#  print(dataset.tail())  # Gives the last 5 entries in the list
+#  print(dataset.isna().sum())  # Gives the Na values 
+dataset = dataset.dropna()  # Drops all Na values
+
+dataset['Origin'] = dataset['Origin'].map({1: 'USA', 2: 'Europe', 3: 'Japan'})
+dataset = pd.get_dummies(dataset, columns=['Origin'], prefix='', prefix_sep='')  # Applies 0/1 values to categorical entries
+dataset['Europe'] = dataset['Europe'].map({False: 0, True: 1})
+dataset['Japan'] = dataset['Japan'].map({False: 0, True: 1})
+dataset['USA'] = dataset['USA'].map({False: 0, True: 1})
+
+
+train_dataset = dataset.sample(frac=0.8, random_state=0)  # The training set
+test_dataset = dataset.drop(train_dataset.index)  # The test set
+
+train_features = train_dataset.copy()
+test_features = test_dataset.copy()
+
+train_labels = train_features.pop('MPG')
+test_labels = test_features.pop('MPG')
+
+test_results = {}
+
+reloaded = tf.keras.models.load_model('dnn_model')
+
+print(reloaded.summary())
+
+test_results['reloaded'] = reloaded.evaluate(test_features, test_labels, verbose=0)
+
+print(pd.DataFrame(test_results, index=['Mean absolute error [MPG]']).T)
+
