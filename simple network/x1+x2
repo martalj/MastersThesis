@@ -1,0 +1,54 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+import tensorflow as tf
+
+from tensorflow import keras
+from tensorflow.keras import layers
+
+## Data ##
+
+def f(x1,x2):
+    return x1 + x2
+
+x1 = np.array(np.linspace(0,10,100))
+x2 = np.array(np.linspace(0,10,100))
+xs = np.stack((x1,x2),1)
+print(xs)
+y = np.array(f(x1,x2))
+
+## Model ##
+
+model = tf.keras.Sequential([tf.keras.layers.Dense(16,activation='relu',input_shape=[2]),
+                            tf.keras.layers.Dense(64,activation='relu'),
+                            tf.keras.layers.Dense(1)])
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),loss='mean_absolute_error')
+
+print(model.summary())
+
+#print(model.predict(x))
+
+history = model.fit(xs, y, epochs=10000)
+
+hist = pd.DataFrame(history.history)
+hist['epoch'] = history.epoch
+print(hist.tail())
+
+test_loss = model.evaluate(xs,  y, verbose=2)
+print('test loss = ',test_loss)
+
+x1_predict = np.array(np.linspace(-5,15,200))
+x2_predict = np.array(np.linspace(-5,15,200))
+xs_predict = np.stack((x1_predict,x2_predict),1)
+y_predict = np.array(f(x1_predict,x2_predict))
+
+predictions = model.predict(xs_predict)
+
+#plt.plot(history.history['loss'], label='loss')
+plt.plot(x1,y, color = 'k', label = 'Data')
+plt.plot(x1_predict, predictions, label = 'Predictions')
+#plt.scatter(x1_predict, y_predict, color = 'm')
+plt.legend()
+plt.show()

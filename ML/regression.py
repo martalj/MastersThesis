@@ -19,7 +19,7 @@ column_names = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
 raw_dataset = pd.read_csv(url, names = column_names, na_values = '?', comment = '\t', sep = ' ', skipinitialspace=True)
 
 dataset = raw_dataset.copy()
-#  print(dataset.tail())  # Gives the last 5 entries in the list
+print(dataset.tail())  # Gives the last 5 entries in the list
 #  print(dataset.isna().sum())  # Gives the Na values 
 dataset = dataset.dropna()  # Drops all Na values
 
@@ -37,12 +37,14 @@ test_dataset = dataset.drop(train_dataset.index)  # The test set
 #print(sns.pairplot(train_dataset[['MPG', 'Cylinders', 'Displacement', 'Weight']], diag_kind='kde'))
 #plt.show()
 
-print(train_dataset.describe().transpose())
+#print(train_dataset.describe().transpose())
 
 
 #  Splitting features from labels 
 train_features = train_dataset.copy()
 test_features = test_dataset.copy()
+
+print(train_features.tail())
 
 train_labels = train_features.pop('MPG')
 test_labels = test_features.pop('MPG')

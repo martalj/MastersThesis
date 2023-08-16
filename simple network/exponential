@@ -1,0 +1,50 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+import tensorflow as tf
+
+from tensorflow import keras
+from tensorflow.keras import layers
+
+## Data ##
+
+def f(x):
+    return np.exp(x)
+
+x = np.array(np.linspace(0,10,100))
+y = np.array(f(x))
+
+## Model ##
+
+model = tf.keras.Sequential([tf.keras.layers.Dense(64,activation='relu',input_shape=[1,]),
+                             tf.keras.layers.Dense(64,activation = 'relu'),
+                            tf.keras.layers.Dense(1)])
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),loss='mean_absolute_error')
+
+print(model.summary())
+
+#print(model.predict(x))
+
+history = model.fit(x, y, epochs=100)
+
+hist = pd.DataFrame(history.history)
+hist['epoch'] = history.epoch
+print(hist.tail())
+
+test_loss = model.evaluate(x,  y, verbose=2)
+print('test loss = ',test_loss)
+
+x_predict = np.array(np.linspace(-5,15,200))
+y_predict = np.array(f(x_predict))
+
+print(x_predict)
+predictions = model.predict(x_predict)
+
+
+#plt.plot(history.history['loss'], label='loss')
+plt.plot(x,y, color = 'k', label = 'Data')
+plt.plot(x_predict, predictions, label = 'Predictions')
+plt.legend()
+plt.show()
