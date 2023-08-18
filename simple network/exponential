@@ -17,8 +17,9 @@ y = np.array(f(x))
 
 ## Model ##
 
-model = tf.keras.Sequential([tf.keras.layers.Dense(64,activation='relu',input_shape=[1,]),
-                             tf.keras.layers.Dense(64,activation = 'relu'),
+model = tf.keras.Sequential([tf.keras.layers.Dense(512,activation='relu',input_shape=[1,]),
+                            tf.keras.layers.Dense(512,activation = 'relu'),
+                            tf.keras.layers.Dense(512,activation = 'relu'),
                             tf.keras.layers.Dense(1)])
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),loss='mean_absolute_error')
@@ -33,18 +34,17 @@ hist = pd.DataFrame(history.history)
 hist['epoch'] = history.epoch
 print(hist.tail())
 
-test_loss = model.evaluate(x,  y, verbose=2)
-print('test loss = ',test_loss)
+x_test = np.array(np.linspace(-5,15,200))
+y_test = np.array(f(x_test))
 
-x_predict = np.array(np.linspace(-5,15,200))
-y_predict = np.array(f(x_predict))
+test_loss = model.evaluate(x_test,  y_test, verbose=2)
 
-print(x_predict)
-predictions = model.predict(x_predict)
-
+predictions = model.predict(x_test)
 
 #plt.plot(history.history['loss'], label='loss')
-plt.plot(x,y, color = 'k', label = 'Data')
-plt.plot(x_predict, predictions, label = 'Predictions')
+plt.plot(x_test, y_test, color = 'k', label = 'Data')
+plt.plot(x_test, predictions, label = 'Predictions')
+#plt.scatter(x1_test, y_test, color = 'm')
+plt.title(f'512+512+512 nodes, loss = {test_loss}')
 plt.legend()
 plt.show()

@@ -1,0 +1,39 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+import tensorflow as tf
+
+from tensorflow import keras
+from tensorflow.keras import layers
+
+## Data ##
+
+def f(x1,x2):
+    return x1 + x2
+
+x1 = np.array(np.linspace(0,10,100))
+x2 = np.array(np.linspace(0,10,100))
+xs = np.stack((x1,x2),1)
+y = np.array(f(x1,x2))
+
+reloaded = tf.keras.models.load_model('sum_model')
+
+print(reloaded.summary())
+
+x1_test = np.array(np.linspace(-5,15,200))
+x2_test = np.array(np.linspace(-5,15,200))
+xs_test = np.stack((x1_test,x2_test),1)
+y_test = np.array(f(x1_test,x2_test))
+
+test_results = reloaded.evaluate(xs_test,y_test, verbose=0)
+
+print("test results = ", test_results)
+
+predictions = reloaded.predict(xs_test)
+
+plt.plot(x1_test, y_test, label = "Data")
+plt.plot(x1_test, predictions, label = 'Predictions')
+plt.title(f'64+64 nodes, 1000 epochs, loss = {test_results}')
+plt.legend()
+plt.show()
