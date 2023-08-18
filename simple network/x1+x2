@@ -19,9 +19,9 @@ y = np.array(f(x1,x2))
 
 ## Model ##
 
-model = tf.keras.Sequential([tf.keras.layers.Dense(512,activation='relu',input_shape=[2]),
-                            tf.keras.layers.Dense(512,activation='relu'),
-                            tf.keras.layers.Dense(512,activation='relu'),
+model = tf.keras.Sequential([tf.keras.layers.Dense(64,activation='relu',input_shape=[2]),
+                            tf.keras.layers.Dense(64,activation='relu'),
+                            #tf.keras.layers.Dense(512,activation='relu'),
                             tf.keras.layers.Dense(1)])
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),loss='mean_squared_error')
@@ -29,7 +29,7 @@ model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),loss='mean_s
 print(model.summary())
 
 
-history = model.fit(xs, y, epochs=100)
+history = model.fit(xs, y, epochs=10000)
 
 hist = pd.DataFrame(history.history)
 hist['epoch'] = history.epoch
@@ -50,7 +50,7 @@ predictions = model.predict(xs_test)
 plt.plot(x1_test, y_test, color = 'k', label = 'Data')
 plt.plot(x1_test, predictions, label = 'Predictions')
 #plt.scatter(x1_test, y_test, color = 'm')
-plt.title(f'512+512+512 nodes, loss = {test_loss}')
+plt.title(f'64 nodes, 10000 epochs, loss = {test_loss}')
 plt.legend()
 plt.show()
 
