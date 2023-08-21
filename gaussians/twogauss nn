@@ -1,0 +1,68 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import random
+
+import tensorflow as tf
+
+from tensorflow import keras
+from tensorflow.keras import layers
+
+## The function
+
+def L(x1,x2):
+    return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
+
+## Creating data
+
+x1 = np.linspace(-10,20,1000)
+x2 = np.linspace(-5,20,1000)
+#xx1, xx2 = np.meshgrid(x1,x2)
+y = L(x1,x2)
+
+xs = np.stack((x1,x2),1)
+
+## Splitting data into a training and testing set
+
+x1_copy = x1.copy()
+x2_copy = x2.copy()
+
+random.shuffle(x1_copy)
+random.shuffle(x2_copy)
+
+x1_train = x1_copy[:800]
+x2_train = x1_copy[:800]
+#xx1_train, xx2_train = np.meshgrid(x1_train,x2_train)
+y_train = L(x1_train,x2_train)
+xs_train = np.stack((x1_train,x2_train),1)
+
+
+x1_test = x1_copy[800:]
+x2_test = x2_copy[800:]
+#xx1_test, xx2_test = np.meshgrid(x1_test,x2_test)
+y_test = L(x1_test,x2_test)
+xs_test = np.stack((x1_test,x2_test),1)
+
+## The network
+
+model = tf.keras.Sequential([tf.keras.layers.Dense(64,activation='relu',input_shape=[2]),
+                            tf.keras.layers.Dense(64,activation='relu'),
+                            tf.keras.layers.Dense(64,activation='relu'),
+                            tf.keras.layers.Dense(1)])
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),loss='mean_squared_error')
+
+print(model.summary())
+
+history = model.fit(xs_train, y_train, epochs=100, verbose = 2)
+
+test_loss = model.evaluate(xs_test,  y_test, verbose=0)
+print(test_loss)
+
+predictions = model.predict(xs_test)
+
+model.save('two gauss model')
+
+plt.scatter(x1,y, label = 'Data')
+plt.scatter(x1_test,predictions, label = 'Predictions')
+plt.legend()
+plt.show()
