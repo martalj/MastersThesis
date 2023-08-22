@@ -10,27 +10,23 @@ def L(params):
     x1,x2 = params
     return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
 
+def L2(params):
+    y = np.log(L(params))
+    y[y < -10] = np.nan
+    return y
 ## Creating data
 
 x1 = np.linspace(-10,20,1000)
 x2 = np.linspace(-5,20,1000)
 xx1,xx2 = np.meshgrid(x1,x2)
 params = (xx1,xx2)
-y = np.log(L(params))
+y = L2(params)
+#print(np.min(np.min(L(params))),np.max(np.max(L(params))))
 
 xs = np.stack((x1,x2),1)
 
 ## Plotting data
 
-plt.contourf(xx1,xx2,y)
+plt.pcolormesh(xx1,xx2,y)
 plt.colorbar()
 plt.show()
-
-## Scipy optimization
-
-def logL(params):
-    return -np.log(L(params))
-
-
-res = minimize(logL, x0 = (0.5,0.5))
-print(res)

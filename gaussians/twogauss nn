@@ -21,7 +21,7 @@ y = L(x1,x2)
 
 xs = np.stack((x1,x2),1)
 
-## Splitting data into a training and testing set
+## Splitting data into a training and testing set - Random points
 
 x1_copy = x1.copy()
 x2_copy = x2.copy()
@@ -41,6 +41,15 @@ x2_test = x2_copy[800:]
 #xx1_test, xx2_test = np.meshgrid(x1_test,x2_test)
 y_test = L(x1_test,x2_test)
 xs_test = np.stack((x1_test,x2_test),1)
+
+## Drawing data points from a distribution
+
+def draw_points(N, mean, cov):
+    M = N//2
+    r1 = np.random.multivariate_normal(mean,cov,M)
+    r2 = np.random.multivariate_normal(mean,cov,M)
+
+    return np.concatenate(r1,r2)
 
 ## The network
 
