@@ -4,6 +4,8 @@ import random
 
 import tensorflow as tf
 
+import datasampling
+
 from tensorflow import keras
 from tensorflow.keras import layers
 
@@ -23,33 +25,41 @@ xs = np.stack((x1,x2),1)
 
 ## Splitting data into a training and testing set - Random points
 
-x1_copy = x1.copy()
-x2_copy = x2.copy()
+# x1_copy = x1.copy()
+# x2_copy = x2.copy()
 
-random.shuffle(x1_copy)
-random.shuffle(x2_copy)
+# random.shuffle(x1_copy)
+# random.shuffle(x2_copy)
 
-x1_train = x1_copy[:800]
-x2_train = x1_copy[:800]
-#xx1_train, xx2_train = np.meshgrid(x1_train,x2_train)
-y_train = L(x1_train,x2_train)
-xs_train = np.stack((x1_train,x2_train),1)
+# x1_train = x1_copy[:800]
+# x2_train = x2_copy[:800]
+# #xx1_train, xx2_train = np.meshgrid(x1_train,x2_train)
+# y_train = L(x1_train,x2_train)
+# xs_train = np.stack((x1_train,x2_train),1)
 
 
-x1_test = x1_copy[800:]
-x2_test = x2_copy[800:]
-#xx1_test, xx2_test = np.meshgrid(x1_test,x2_test)
-y_test = L(x1_test,x2_test)
-xs_test = np.stack((x1_test,x2_test),1)
+# x1_test = x1_copy[800:]
+# x2_test = x2_copy[800:]
+# #xx1_test, xx2_test = np.meshgrid(x1_test,x2_test)
+# y_test = L(x1_test,x2_test)
+# xs_test = np.stack((x1_test,x2_test),1)
 
 ## Drawing data points from a distribution
 
-def draw_points(N, mean, cov):
-    M = N//2
-    r1 = np.random.multivariate_normal(mean,cov,M)
-    r2 = np.random.multivariate_normal(mean,cov,M)
+y1_mean = [2,8]
+y1_cov = [[0.1**2,0],[0,15**2]]
 
-    return np.concatenate(r1,r2)
+y2_mean = [7,12]
+y2_cov = [[1**2,0],[0,0.02**2]]
+
+mean = [y1_mean,y2_mean]
+cov = [y1_cov,y2_cov]
+
+xs_train = datasampling.draw_points(800,mean,cov)
+y_train = L(xs_train[0],xs_train[1])
+
+xs_test = datasampling.draw_points(200,mean,cov)
+y_test = L[xs_test[0],xs_test[1]]
 
 ## The network
 
@@ -69,7 +79,7 @@ print(test_loss)
 
 predictions = model.predict(xs_test)
 
-model.save('two gauss model')
+#model.save('two gauss model')
 
 plt.scatter(x1,y, label = 'Data')
 plt.scatter(x1_test,predictions, label = 'Predictions')

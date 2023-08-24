@@ -1,37 +1,45 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def L(x1,x2):
     return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
 
-def L1(x1,x2):
-    return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2))
-
 def L2(x1,x2):
-    return 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
+    y = np.log(L(x1,x2))
+    y[y < -10] = np.nan
+    return y
 
 def draw_points(N, mean, cov):
     M = N//2
-    r1 = np.random.multivariate_normal(mean[0],cov[0],M)
-    r2 = np.random.multivariate_normal(mean[1],cov[1],M)
-    print(r1.size)
+    r1 = np.random.multivariate_normal(mean[0],cov[0],M).T
+    r2 = np.random.multivariate_normal(mean[1],cov[1],M).T
 
-    return np.append(r1, r2)
+    return np.append(r1,r2, axis = 1)
 
 x1 = np.linspace(-10,20,1000)
 x2 = np.linspace(-5,20,1000)
 xx1, xx2 = np.meshgrid(x1,x2)
-y1 = L1(xx1,xx2)
-y2 = L2(xx1,xx2)
+y = L2(xx1,xx2)
 
-y1_mean = np.mean(y1, axis = 1)
-y1_cov = np.cov(y1)
+y1_mean = [2,8]
+y1_cov = [[0.1**2,0],[0,15**2]]
 
-y2_mean = np.mean(y2, axis = 1)
-y2_cov = np.cov(y2)
+y2_mean = [7,12]
+y2_cov = [[1**2,0],[0,0.02**2]]
 
-#print(f'y1: mean = {y1_mean}, cov = {y1_cov}')
-#print(f'y2: mean = {y2_mean}, cov = {y2_cov}')
+print(f'y1: mean = {y1_mean}, cov = {y1_cov}')
+print(f'y2: mean = {y2_mean}, cov = {y2_cov}')
 mean = [y1_mean,y2_mean]
 cov = [y1_cov,y2_cov]
 
-points = draw_points(10,mean,cov)
+points = draw_points(1000,mean,cov)
+
+y_sampled = L2(points[0],points[1])
+
+## Plotting data and sampled points
+
+#plt.pcolormesh(xx1,xx2,y)
+plt.scatter(points[0],points[1], c = y_sampled)
+plt.colorbar()
+plt.show()
+
