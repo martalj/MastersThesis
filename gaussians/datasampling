@@ -13,7 +13,6 @@ def draw_points(N, mean, cov):
     M = N//2
     r1 = np.random.multivariate_normal(mean[0],cov[0],M).T
     r2 = np.random.multivariate_normal(mean[1],cov[1],M).T
-
     return np.append(r1,r2, axis = 1)
 
 x1 = np.linspace(-10,20,1000)
@@ -27,8 +26,6 @@ y1_cov = [[0.1**2,0],[0,15**2]]
 y2_mean = [7,12]
 y2_cov = [[1**2,0],[0,0.02**2]]
 
-print(f'y1: mean = {y1_mean}, cov = {y1_cov}')
-print(f'y2: mean = {y2_mean}, cov = {y2_cov}')
 mean = [y1_mean,y2_mean]
 cov = [y1_cov,y2_cov]
 

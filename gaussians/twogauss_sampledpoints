@@ -1,0 +1,77 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import random
+
+import tensorflow as tf
+
+from tensorflow import keras
+from tensorflow.keras import layers
+
+## The function
+
+def L(x1,x2):
+    return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
+
+def logL(x1,x2):
+    return np.log(L(x1,x2))
+
+def draw_points(N, mean, cov):
+    M = N//2
+    r1 = np.random.multivariate_normal(mean[0],cov[0],M).T
+    r2 = np.random.multivariate_normal(mean[1],cov[1],M).T
+    return np.append(r1,r2, axis = 1)
+
+
+## Drawing data points from a distribution
+
+y1_mean = [2,8]
+y1_cov = [[0.1**2,0],[0,15**2]]
+
+y2_mean = [7,12]
+y2_cov = [[1**2,0],[0,0.02**2]]
+
+mean = [y1_mean,y2_mean]
+cov = [y1_cov,y2_cov]
+
+x_train = draw_points(1000,mean,cov)
+y_train = logL(x_train[0],x_train[1])
+xs_train = np.stack(x_train,1)
+
+x_test = draw_points(200,mean,cov)
+y_test = logL(x_test[0],x_test[1])
+xs_test = np.stack(x_test,1)
+
+## The network
+
+callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 7, start_from_epoch = 3)
+
+
+model = tf.keras.Sequential([tf.keras.layers.Dense(64,activation='relu',input_shape=[2]),
+                            tf.keras.layers.Dense(64,activation='relu'),
+                            tf.keras.layers.Dense(1)])
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),loss='mean_squared_error')
+
+print(model.summary())
+
+history = model.fit(xs_train, y_train, epochs=100, verbose = 2, validation_split=0.2,callbacks=[callback])
+
+test_loss = model.evaluate(xs_test,  y_test, verbose=0)
+print(test_loss)
+
+predictions = model.predict(xs_test)
+
+#model.save('two gauss model')
+
+x_data = np.append(x_train,x_test,axis = 1)
+y_data = np.append(y_train,y_test)
+
+plt.scatter(x_data[0],y_data, label = 'Data')
+plt.scatter(x_test[0],predictions, label = 'Predictions')
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.scatter(x_test[0],x_test[1], c = predictions)
+plt.colorbar()
+plt.show()

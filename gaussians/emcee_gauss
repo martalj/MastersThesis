@@ -1,0 +1,36 @@
+import numpy as np
+import emcee
+import matplotlib.pyplot as plt
+
+def L(params):
+    x1, x2 = params
+    return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
+
+def logL(params):
+    return np.log(L(params))
+
+nwalkers = 32
+p0 = np.random.uniform(-10,20,(nwalkers,2))
+
+sampler = emcee.EnsembleSampler(nwalkers, 2, logL)
+
+state = sampler.run_mcmc(p0, 100)
+sampler.reset()
+
+sampler.run_mcmc(state,10000)
+
+samples = sampler.get_chain(flat = True)
+print(samples.shape)
+
+plt.hist(samples[:,0], 100, color = 'k', histtype = 'step')
+plt.xlabel(r"$\theta_1$")
+plt.gca().set_yticks([]);
+plt.show()
+
+plt.hist(samples[:,1], 100, color = 'k', histtype = 'step')
+plt.xlabel(r"$\theta_2$")
+plt.gca().set_yticks([]);
+plt.show()
+
+print(f"Mean acceptance fraction: {np.mean(sampler.acceptance_fraction)}.")
+print(f"Mean autocorrelation time: {np.mean(sampler.get_autocorr_time())}.")

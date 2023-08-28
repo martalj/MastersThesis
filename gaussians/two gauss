@@ -28,5 +28,7 @@ xs = np.stack((x1,x2),1)
 ## Plotting data
 
 plt.pcolormesh(xx1,xx2,y)
+plt.xlim(0,15)
+plt.ylim(6,15)
 plt.colorbar()
 plt.show()
