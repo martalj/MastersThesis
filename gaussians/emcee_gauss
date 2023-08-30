@@ -2,6 +2,7 @@ import numpy as np
 import emcee
 import matplotlib.pyplot as plt
 
+
 def L(params):
     x1, x2 = params
     return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
@@ -20,7 +21,6 @@ sampler.reset()
 sampler.run_mcmc(state,10000)
 
 samples = sampler.get_chain(flat = True)
-print(samples.shape)
 
 plt.hist(samples[:,0], 100, color = 'k', histtype = 'step')
 plt.xlabel(r"$\theta_1$")
@@ -34,3 +34,4 @@ plt.show()
 
 print(f"Mean acceptance fraction: {np.mean(sampler.acceptance_fraction)}.")
 print(f"Mean autocorrelation time: {np.mean(sampler.get_autocorr_time())}.")
+

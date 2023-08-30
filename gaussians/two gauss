@@ -21,6 +21,8 @@ x2 = np.linspace(-5,20,1000)
 xx1,xx2 = np.meshgrid(x1,x2)
 params = (xx1,xx2)
 y = L2(params)
+print(y.shape)
+
 #print(np.min(np.min(L(params))),np.max(np.max(L(params))))
 
 xs = np.stack((x1,x2),1)
