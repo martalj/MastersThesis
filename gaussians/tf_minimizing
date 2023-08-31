@@ -1,0 +1,24 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+import tensorflow_probability as tfp
+
+minimum = np.array([1.0])  # The center of the quadratic bowl.
+scales = np.array([2.0])  # The scales along the two axes.
+
+  # The objective function and the gradient.
+def quadratic_loss_and_gradient(x):
+    return tfp.math.value_and_gradient(lambda x: tf.reduce_sum((x-5.)**2),x)
+
+xs = np.linspace(0,10)
+ys = [quadratic_loss_and_gradient(x)[0].numpy() for x in xs]
+
+start = tf.constant([1.])  # Starting point for the search.
+optim_results = tfp.optimizer.bfgs_minimize(quadratic_loss_and_gradient, initial_position=start, tolerance=1e-8)
+
+print(optim_results.position)
+
+plt.plot(xs,ys)
+plt.scatter(optim_results.position,0)
+plt.show()

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def L(params):
     x1, x2 = params
-    return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
+    return 1/(2.4*np.pi)*np.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
 def logL(params):
     return np.log(L(params))

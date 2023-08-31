@@ -9,7 +9,7 @@ from tensorflow.keras import layers
 ## The function
 
 def L(x1,x2):
-    return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
+    return 1/(2.4*np.pi)*np.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
 def logL(x1,x2):
     return np.log(L(x1,x2))
@@ -24,10 +24,10 @@ def draw_points(N, mean, cov):
 ## Drawing data points from a distribution
 
 y1_mean = [2,8]
-y1_cov = [[0.1**2,0],[0,15**2]]
+y1_cov = [[0.3**2,0],[0,4**2]]
 
 y2_mean = [7,12]
-y2_cov = [[1**2,0],[0,0.02**2]]
+y2_cov = [[1**2,0],[0,0.16**2]]
 
 mean = [y1_mean,y2_mean]
 cov = [y1_cov,y2_cov]

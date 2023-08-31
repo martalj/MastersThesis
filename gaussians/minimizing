@@ -3,10 +3,13 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 
 def L(x2,x1):
-    return 1/(3*np.pi)*np.exp(-1/2*(((x1-2)/0.1)**2 + ((x2-8)/15)**2)) + 1/(0.04*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.02)**2))
+    return 1/(2.4*np.pi)*np.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
 def logL(x2,x1):
     return -np.log(L(x2,x1))
+
+def logL2(x2,x1):
+    return np.log(1/(2.4*np.pi))*(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + np.log(1/(0.32*np.pi))*(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
 def profile(x1,x0):
     prof = np.array([])
@@ -20,14 +23,19 @@ x1 = np.array(np.linspace(-10,20,1000))
 x2 = np.array(np.linspace(-5,20,1000))
 xx1,xx2 = np.meshgrid(x1,x2)
 
-y = logL(xx1,xx2)
+y = -logL(xx2,xx1)
+y2 = -logL2(xx2,xx1)
+plt.pcolormesh(xx1,xx2,y)
+plt.show()
+plt.pcolormesh(xx1,xx2,y2)
+plt.show()
 
 prof12 = profile(x1,12)
-prof8 = profile(x1,8)
-prof = [max(prof12[i],prof8[i]) for i in range(len(prof12))]
+prof7 = profile(x1,7)
+prof = [max(prof12[i],prof7[i]) for i in range(len(prof12))]
 
-plt.plot(x1,prof,'k', label = 'Max of x0 = 8 and x0 = 12')
-plt.plot(x1,prof8,'--', label = 'x0 = 8')
+plt.plot(x1,prof,'k', label = 'Max of x0 = 7 and x0 = 12')
+plt.plot(x1,prof7,'--', label = 'x0 = 7')
 plt.plot(x1,prof12,'--', label = 'x0 = 12')
 plt.xlabel(r"$\theta_1$")
 plt.legend()
