@@ -1,24 +1,46 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import tensorflow as tf
 
+import tensorflow as tf
 import tensorflow_probability as tfp
 
-minimum = np.array([1.0])  # The center of the quadratic bowl.
-scales = np.array([2.0])  # The scales along the two axes.
+x1 = tf.Variable(2.)
 
-  # The objective function and the gradient.
-def quadratic_loss_and_gradient(x):
-    return tfp.math.value_and_gradient(lambda x: tf.reduce_sum((x-5.)**2),x)
+def L(x1,x2):
+    return 1/(2.4*np.pi)*tf.math.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*tf.math.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
-xs = np.linspace(0,10)
-ys = [quadratic_loss_and_gradient(x)[0].numpy() for x in xs]
+def L_val_grad(x1,x2):
+    return tfp.math.value_and_gradient(lambda x2: tf.reduce_sum(-tf.math.log(L(x1,x2))),x2)
 
-start = tf.constant([1.])  # Starting point for the search.
-optim_results = tfp.optimizer.bfgs_minimize(quadratic_loss_and_gradient, initial_position=start, tolerance=1e-8)
+def L2(x2):
+    return L_val_grad(x1,x2)
 
-print(optim_results.position)
+def profile(x1s,x0):
+    prof = np.array([])
+    for x1 in x1s:
+        minimum = tfp.optimizer.bfgs_minimize(L2,initial_position=x0, tolerance=1e-8)
+        res = L(x1,minimum.position)
+        prof = np.append(prof,res.numpy())
+    return prof
 
-plt.plot(xs,ys)
-plt.scatter(optim_results.position,0)
+#x2s = tf.linspace(0.,10.,10)
+#ys = [(L2(x2)[0].numpy(),L2(x2)[1].numpy()) for x2 in x2s]
+#print(ys)
+
+x0 = tf.constant([12.])
+start = tf.constant([12.])
+xzs = tf.linspace(-10.,20.,100)
+
+proft = np.array([])
+for xz in xzs:
+    minimumt = tfp.optimizer.bfgs_minimize(L2,initial_position=start, tolerance=1e-8)
+    rest = L(xz,minimumt.position)
+    proft = np.append(proft,rest.numpy())
+
+prof_func = profile(xzs, x0)
+
+plt.plot(xzs,prof_func,'k', label = "Function")
+plt.plot(xzs,proft,'--', label = "Out of function")
+plt.xlabel(r"$\theta_1$")
+plt.legend()
 plt.show()
