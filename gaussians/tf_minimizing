@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow_probability as tfp
 
+import time
+
 def L(x1,x2):
     return 1/(2.4*np.pi)*tf.math.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*tf.math.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
@@ -12,21 +14,31 @@ def L_val_grad(x1,x2):
 
 def profile(x1s,x0):
     prof = np.array([])
+    evaluations = np.array([])
     for x in x1s:
         x1 = tf.Variable(x)
-        minimum = tfp.optimizer.bfgs_minimize(lambda x2: L_val_grad(x1,x2),initial_position=x0, tolerance=1e-8)
+        minimum = tfp.optimizer.bfgs_minimize(lambda x2: L_val_grad(x1,x2),initial_position=x0, tolerance=1e-3)
         res = L(x,minimum.position)
         prof = np.append(prof,res.numpy())
-    return prof
+        evaluations = np.append(evaluations,minimum.num_objective_evaluations)
+    return prof, evaluations
 
 x12 = tf.constant([12.])
 x7 = tf.constant([7.])
 
 x1s = tf.linspace(-10.,20.,1000)
 
-prof12 = profile(x1s,x12)
+start = time.time()
+prof12, prof12_evaluations = profile(x1s,x12)
+end = time.time()
 #prof7 = profile(x1s,x7)
 #prof = [max(prof12[i],prof7[i]) for i in range(len(prof12))]
+
+avg_evaluations = np.mean(prof12_evaluations)
+var_evaluations = np.var(prof12_evaluations)
+
+print(f"Average number of function evaluations performed by optimizer: {avg_evaluations}. Variance of number of function evaluations: {var_evaluations}.")
+print(f"Time taken: {end-start}.")
 
 #plt.plot(x1s,prof,'k', label = 'Max of x0 = 7 and x0 = 12')
 plt.plot(x1s,prof12,'k', label = "x0 = 12")

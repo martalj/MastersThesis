@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
+import time
 
 def L(x2,x1):
     return 1/(2.4*np.pi)*np.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
@@ -13,26 +14,36 @@ def logL2(x2,x1):
 
 def profile(x1,x0):
     prof = np.array([])
+    iterations = np.array([])
+    evaluations = np.array([])
     for x in x1:
-        minimum = minimize(logL,[x0],args = x).x
-        res = L(minimum,x)
+        minimum = minimize(logL,[x0],args = x)
+        res = L(minimum.x,x)
+        iterations = np.append(iterations,minimum.nit)
+        evaluations = np.append(evaluations,minimum.nfev)
         prof = np.append(prof,res)
-    return prof
+    return prof, iterations, evaluations
 
 x1 = np.array(np.linspace(-10,20,1000))
 x2 = np.array(np.linspace(-5,20,1000))
 xx1,xx2 = np.meshgrid(x1,x2)
 
-y = -logL(xx2,xx1)
-y2 = -logL2(xx2,xx1)
-plt.pcolormesh(xx1,xx2,y)
-plt.show()
-plt.pcolormesh(xx1,xx2,y2)
-plt.show()
-
-prof12 = profile(x1,12)
-prof7 = profile(x1,7)
+start = time.time()
+prof12, prof12_iterations, prof12_evaluations = profile(x1,12)
+end = time.time()
+prof7, prof7_iterations, prof7_evaluations = profile(x1,7)
 prof = [max(prof12[i],prof7[i]) for i in range(len(prof12))]
+
+avg_iterations = np.mean(prof12_iterations)
+var_iterations = np.var(prof12_iterations)
+
+print(f"Average number of iterations performed by optimizer: {avg_iterations}. Variance of number of iterations: {var_iterations}.")
+
+avg_evaluations = np.mean(prof12_evaluations)
+var_evaluations = np.var(prof12_evaluations)
+
+print(f"Average number of function evaluations performed by optimizer: {avg_evaluations}. Variance of number of function evaluations: {var_evaluations}.")
+print(f"Time taken: {end-start} s.")
 
 plt.plot(x1,prof,'k', label = 'Max of x0 = 7 and x0 = 12')
 plt.plot(x1,prof7,'--', label = 'x0 = 7')

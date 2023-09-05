@@ -2,6 +2,8 @@ import numpy as np
 import emcee
 import matplotlib.pyplot as plt
 
+import corner
+import time
 
 def L(params):
     x1, x2 = params
@@ -10,6 +12,7 @@ def L(params):
 def logL(params):
     return np.log(L(params))
 
+start = time.time()
 nwalkers = 32
 p0 = np.random.uniform(-10,20,(nwalkers,2))
 
@@ -18,9 +21,10 @@ sampler = emcee.EnsembleSampler(nwalkers, 2, logL)
 state = sampler.run_mcmc(p0, 100)
 sampler.reset()
 
-sampler.run_mcmc(state,10000)
+sampler.run_mcmc(state,100000)
 
 samples = sampler.get_chain(flat = True)
+end = time.time()
 
 plt.hist(samples[:,0], 100, color = 'k', histtype = 'step')
 plt.xlabel(r"$\theta_1$")
@@ -32,6 +36,11 @@ plt.xlabel(r"$\theta_2$")
 plt.gca().set_yticks([]);
 plt.show()
 
+labels = (r"$\theta_1$",r"$\theta_2$")
+
+fig = corner.corner(samples, labels = labels)
+plt.show()
+
+print(f"Time taken: {end-start} s.")
 print(f"Mean acceptance fraction: {np.mean(sampler.acceptance_fraction)}.")
 print(f"Mean autocorrelation time: {np.mean(sampler.get_autocorr_time())}.")
-
