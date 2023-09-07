@@ -16,15 +16,18 @@ start = time.time()
 nwalkers = 32
 p0 = np.random.uniform(-10,20,(nwalkers,2))
 
+
 sampler = emcee.EnsembleSampler(nwalkers, 2, logL)
 
 state = sampler.run_mcmc(p0, 100)
 sampler.reset()
 
-sampler.run_mcmc(state,100000)
+sampler.run_mcmc(state,10000)
 
 samples = sampler.get_chain(flat = True)
 end = time.time()
+
+print(samples[0])
 
 plt.hist(samples[:,0], 100, color = 'k', histtype = 'step')
 plt.xlabel(r"$\theta_1$")

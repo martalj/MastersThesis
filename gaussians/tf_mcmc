@@ -7,15 +7,23 @@ import time
 import collections
 collections.Iterable = collections.abc.Iterable
 
-def L(x1,x2):
-    #x1, x2 = params
+def L(params):
+    x1, x2 = params
     return 1/(2.4*np.pi)*tf.math.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*tf.math.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
-def logL(x1,x2):
-    return tf.math.log(L(x1,x2))
+def logL(params):
+    return tf.math.log(L(params))
 
-num_results = int(10000)
-num_burnin_steps = int(100)
+num_results = int(300)
+num_burnin_steps = int(50)
+num_chains = 10
+num_params = 2
+
+current_state = tf.constant([1.,1.])
+print(current_state)
+
+y = logL(current_state)
+print(y)
 
 start = time.time()
 adaptive_hmc = tfp.mcmc.SimpleStepSizeAdaptation(
@@ -32,23 +40,35 @@ def run_chain():
   samples, is_accepted = tfp.mcmc.sample_chain(
       num_results=num_results,
       num_burnin_steps=num_burnin_steps,
-      current_state=[1.,1.],
+      current_state=current_state,
       kernel=adaptive_hmc,
-      trace_fn=lambda _, pkr: pkr.inner_results.is_accepted)
+      trace_fn=lambda _, pkr: pkr.inner_results.is_accepted,
+      parallel_iterations = 10)
 
-  sample_mean = tf.reduce_mean(samples)
-  sample_stddev = tf.math.reduce_std(samples)
+  sample_mean0 = tf.reduce_mean(samples[:,0])
+  sample_stddev0 = tf.math.reduce_std(samples[:,0])
+  sample_mean1 = tf.reduce_mean(samples[:,1])
+  sample_stddev1 = tf.math.reduce_std(samples[:,1])
   is_accepted = tf.reduce_mean(tf.cast(is_accepted, dtype=tf.float32))
-  return sample_mean, sample_stddev, is_accepted, samples
+  #return sample_mean0, sample_stddev0, sample_mean1, sample_stddev1, is_accepted, samples
+  return samples
 
-sample_mean, sample_stddev, is_accepted, samples = run_chain()
+#sample_mean0, sample_stddev0, sample_mean1, sample_stddev1, is_accepted, samples = run_chain()
+chains = [run_chain() for i in range(num_chains)]
 end = time.time()
 
-print('mean:{:.4f}  stddev:{:.4f}  acceptance:{:.4f}'.format(
-    sample_mean.numpy(), sample_stddev.numpy(), is_accepted.numpy()))
-print(f"Time take: {end-start}")
+samples = np.array([sample.numpy() for sample in chains])
 
-plt.hist(samples, 100, histtype = 'step')
+
+# print('mean0:{:.4f}  stddev0:{:.4f}  acceptance:{:.4f}'.format(
+#     sample_mean0.numpy(), sample_stddev0.numpy(), is_accepted.numpy()))
+# print('mean1:{:.4f}  stddev1:{:.4f}  acceptance:{:.4f}'.format(
+#     sample_mean1.numpy(), sample_stddev1.numpy(), is_accepted.numpy()))
+# print(f"Time take: {end-start}")
+
+
+plt.hist(samples[:,:,0], 100, histtype = 'step')
+#plt.hist(samples[:,1],100, histtype = 'step')
 plt.xlabel(r"$\theta_1$")
 plt.ylabel(r"$p(\theta_1)$")
 plt.gca().set_yticks([])

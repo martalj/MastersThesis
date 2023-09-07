@@ -17,7 +17,7 @@ def profile(x1s,x0):
     evaluations = np.array([])
     for x in x1s:
         x1 = tf.Variable(x)
-        minimum = tfp.optimizer.bfgs_minimize(lambda x2: L_val_grad(x1,x2),initial_position=x0, tolerance=1e-3)
+        minimum = tfp.optimizer.bfgs_minimize(lambda x2: L_val_grad(x1,x2),initial_position=x0, tolerance=1e-5)
         res = L(x,minimum.position)
         prof = np.append(prof,res.numpy())
         evaluations = np.append(evaluations,minimum.num_objective_evaluations)
@@ -37,8 +37,13 @@ end = time.time()
 avg_evaluations = np.mean(prof12_evaluations)
 var_evaluations = np.var(prof12_evaluations)
 
+plt.plot(x1s,prof12_evaluations)
+plt.ylabel("Number of evaluations")
+plt.xlabel(r"$x_1$")
+plt.show()
+
 print(f"Average number of function evaluations performed by optimizer: {avg_evaluations}. Variance of number of function evaluations: {var_evaluations}.")
-print(f"Time taken: {end-start}.")
+print(f"Time taken: {end-start} s.")
 
 #plt.plot(x1s,prof,'k', label = 'Max of x0 = 7 and x0 = 12')
 plt.plot(x1s,prof12,'k', label = "x0 = 12")

@@ -1,0 +1,57 @@
+import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from affine import *
+import corner
+
+def L(params):
+    x1, x2 = tf.split(params, (1,1), axis=-1)
+    return tf.squeeze(1/(2.4*np.pi)*tf.math.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*tf.math.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2)))
+
+def logL(params):
+    return tf.math.log(L(params))
+
+
+# number of parameters
+n_params = 2
+
+# number of walkers (note you'll end up with a total of 2*n_walkers for this parallel variant of the affine sampler)
+n_walkers = 32
+
+# initialize walkers and current state
+walkers1 = tf.random.uniform((n_walkers,n_params),-10,20)
+walkers2 = tf.random.uniform((n_walkers,n_params),-10,20)
+current_state = [walkers1, walkers2]
+
+# number of MCMC steps to take (you'll end up with an MCMC chain with shape (n_steps, 2*n_walkers, n_parameters))
+n_steps = 300
+
+# run the sampler
+chain = affine_sample(logL, n_steps, current_state, args=[])
+
+# print(chain.shape)
+# chain = tf.reshape(chain, [n_steps*n_walkers*n_params,2])
+# print(chain.shape)
+# plot the results...
+
+
+# how many burnin steps to remove
+burnin_steps = 100
+
+plt.hist(chain[burnin_steps:,:,0].numpy().flatten(), 100, histtype = 'step')
+plt.xlabel(r"$\theta_1$")
+plt.gca().set_yticks([]);
+plt.show()
+
+
+plt.hist(chain[burnin_steps:,:,1].numpy().flatten(), 100, color = 'k', histtype = 'step')
+plt.xlabel(r"$\theta_2$")
+plt.gca().set_yticks([]);
+plt.show()
+
+
+labels = (r"$\theta_1$",r"$\theta_2$")
+
+chain = tf.reshape(chain, [n_steps*n_walkers*n_params,2])
+fig = corner.corner(chain.numpy(), labels = labels)
+plt.show()

@@ -14,33 +14,31 @@ def logL2(x2,x1):
 
 def profile(x1,x0):
     prof = np.array([])
-    iterations = np.array([])
     evaluations = np.array([])
     for x in x1:
         minimum = minimize(logL,[x0],args = x)
         res = L(minimum.x,x)
-        iterations = np.append(iterations,minimum.nit)
         evaluations = np.append(evaluations,minimum.nfev)
         prof = np.append(prof,res)
-    return prof, iterations, evaluations
+    return prof, evaluations
 
 x1 = np.array(np.linspace(-10,20,1000))
 x2 = np.array(np.linspace(-5,20,1000))
 xx1,xx2 = np.meshgrid(x1,x2)
 
 start = time.time()
-prof12, prof12_iterations, prof12_evaluations = profile(x1,12)
+prof12, prof12_evaluations = profile(x1,12)
 end = time.time()
-prof7, prof7_iterations, prof7_evaluations = profile(x1,7)
+prof7, prof7_evaluations = profile(x1,7)
 prof = [max(prof12[i],prof7[i]) for i in range(len(prof12))]
-
-avg_iterations = np.mean(prof12_iterations)
-var_iterations = np.var(prof12_iterations)
-
-print(f"Average number of iterations performed by optimizer: {avg_iterations}. Variance of number of iterations: {var_iterations}.")
 
 avg_evaluations = np.mean(prof12_evaluations)
 var_evaluations = np.var(prof12_evaluations)
+
+plt.plot(x1,prof12_evaluations)
+plt.ylabel("Number of evaluations")
+plt.xlabel(r"$x_1$")
+plt.show()
 
 print(f"Average number of function evaluations performed by optimizer: {avg_evaluations}. Variance of number of function evaluations: {var_evaluations}.")
 print(f"Time taken: {end-start} s.")
