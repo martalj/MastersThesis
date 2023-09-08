@@ -16,34 +16,29 @@ def logL(params):
 
 num_results = int(300)
 num_burnin_steps = int(50)
-num_chains = 10
+num_chains = 1
 num_params = 2
-
-current_state = tf.constant([1.,1.])
-print(current_state)
-
-y = logL(current_state)
-print(y)
 
 start = time.time()
 adaptive_hmc = tfp.mcmc.SimpleStepSizeAdaptation(
     tfp.mcmc.HamiltonianMonteCarlo(
         target_log_prob_fn=logL,
         num_leapfrog_steps=3,
-        step_size=1.),
+        step_size=0.5),
     num_adaptation_steps=int(num_burnin_steps * 0.8))
 
 # Run the chain (with burn-in).
 #@tf.function
 def run_chain():
   # Run the chain (with burn-in).
+  #current_state = tf.random.uniform([num_params],-10.,20.)
+  current_state = tf.constant([1.5,6.5])
   samples, is_accepted = tfp.mcmc.sample_chain(
       num_results=num_results,
       num_burnin_steps=num_burnin_steps,
       current_state=current_state,
       kernel=adaptive_hmc,
-      trace_fn=lambda _, pkr: pkr.inner_results.is_accepted,
-      parallel_iterations = 10)
+      trace_fn=lambda _, pkr: pkr.inner_results.is_accepted)
 
   sample_mean0 = tf.reduce_mean(samples[:,0])
   sample_stddev0 = tf.math.reduce_std(samples[:,0])
@@ -58,7 +53,7 @@ chains = [run_chain() for i in range(num_chains)]
 end = time.time()
 
 samples = np.array([sample.numpy() for sample in chains])
-
+samples = tf.reshape(samples, [num_results*num_chains,num_params])
 
 # print('mean0:{:.4f}  stddev0:{:.4f}  acceptance:{:.4f}'.format(
 #     sample_mean0.numpy(), sample_stddev0.numpy(), is_accepted.numpy()))
@@ -67,9 +62,14 @@ samples = np.array([sample.numpy() for sample in chains])
 # print(f"Time take: {end-start}")
 
 
-plt.hist(samples[:,:,0], 100, histtype = 'step')
-#plt.hist(samples[:,1],100, histtype = 'step')
+plt.hist(samples[num_burnin_steps:,0], 100, histtype = 'step')
 plt.xlabel(r"$\theta_1$")
 plt.ylabel(r"$p(\theta_1)$")
+plt.gca().set_yticks([])
+plt.show()
+
+plt.hist(samples[num_burnin_steps:,1],100, histtype = 'step')
+plt.xlabel(r"$\theta_2$")
+plt.ylabel(r"$p(\theta_2)$")
 plt.gca().set_yticks([])
 plt.show()

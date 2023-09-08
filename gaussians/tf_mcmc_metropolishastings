@@ -7,9 +7,20 @@ def L(params):
     x1, x2 = params
     return 1/(2.4*np.pi)*tf.math.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*tf.math.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
-def logL(params):
-    return tf.math.log(L(params))
+# def logL(params):
+#     return tf.math.log(L(params))
 
+def logL(params):
+    x1, x2 = params
+    y = tf.math.log(L(params))
+    if y < -100:
+        y = tf.math.log(1/(2.4*np.pi))*-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2) + tf.math.log(1/(0.32*np.pi))*-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2)
+    return y
+    
+num_results = 100
+num_chains = 10
+num_params = 2
+num_burnin_steps = 10
 
 hmc = tfp.mcmc.MetropolisHastings(
     tfp.mcmc.UncalibratedHamiltonianMonteCarlo(
@@ -17,21 +28,29 @@ hmc = tfp.mcmc.MetropolisHastings(
         step_size=0.5,
         num_leapfrog_steps=3))
 
-states = tfp.mcmc.sample_chain(
-    num_results=10000,
-    num_burnin_steps=1000,
-    current_state=tf.constant([2.,8.]),
-    kernel=hmc,
-    trace_fn=None)
+def run_chain():
+    states = tfp.mcmc.sample_chain(
+        num_results=num_results,
+        num_burnin_steps=num_burnin_steps,
+        #current_state = tf.constant([2.,7.]),
+        current_state = tf.random.uniform([num_params],-10.,20.),
+        kernel=hmc,
+        trace_fn=None)
+    return states
 
-sample_mean = tf.reduce_mean(states[:,0], axis=0)
-print(sample_mean)
+chains = [run_chain() for i in range(num_chains)]
 
-sample_mean2 = tf.reduce_mean(states[:,1], axis=0)
-print(sample_mean2)
+samples = np.array([sample.numpy() for sample in chains])
+samples = tf.reshape(samples, [num_results*num_chains,num_params])
 
-plt.hist(states[:,0], 100, histtype = 'step')
+plt.hist(samples[:,0], 100, histtype = 'step')
+plt.xlabel(r"$\theta_1$")
+plt.ylabel(r"$p(\theta_1)$")
+plt.gca().set_yticks([])
 plt.show()
 
-plt.hist(states[:,1], 100, histtype = 'step')
+plt.hist(samples[:,1], 100, histtype = 'step')
+plt.xlabel(r"$\theta_2$")
+plt.ylabel(r"$p(\theta_2)$")
+plt.gca().set_yticks([])
 plt.show()

@@ -6,31 +6,35 @@ from scipy.optimize import minimize
 
 ## The function
 
-def L(params):
-    x1,x2 = params
+def L(x1, x2):
+    #x1,x2 = params
     return 1/(2.4*np.pi)*np.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
 
-def L2(params):
-    y = np.log(L(params))
-    y[y < -10] = np.nan
+def L2(x1,x2):
+    y = np.log(L(x1,x2))
+    for z in range(len(y)):
+        if y[z] < -100:
+            a = x1[z]
+            b = x2[z]
+            y[z] = np.log(1/(2.4*np.pi))*-1/2*(((a-2)/0.3)**2 + ((b-8)/4)**2) + np.log(1/(0.32*np.pi))*-1/2*(((a-7)/1)**2 + ((b-12)/0.16)**2)
     return y
 ## Creating data
 
-x1 = np.linspace(-10,20,1000)
-x2 = np.linspace(-5,20,1000)
+x1 = np.linspace(-10,20,10)
+x2 = np.linspace(-5,20,10)
 xx1,xx2 = np.meshgrid(x1,x2)
-params = (xx1,xx2)
-y = L2(params)
-print(y.shape)
+#params = (xx1,xx2)
+y = L2(x1,x2)
 
+print(y)
 #print(np.min(np.min(L(params))),np.max(np.max(L(params))))
 
-xs = np.stack((x1,x2),1)
+#xs = np.stack((x1,x2),1)
 
 ## Plotting data
 
-plt.pcolormesh(xx1,xx2,y)
-plt.xlim(0,15)
-plt.ylim(6,15)
-plt.colorbar()
-plt.show()
+# plt.pcolormesh(xx1,xx2,y)
+# plt.xlim(0,15)
+# plt.ylim(6,15)
+# plt.colorbar()
+# plt.show()

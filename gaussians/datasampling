@@ -6,8 +6,22 @@ def L(x1,x2):
 
 def L2(x1,x2):
     y = np.log(L(x1,x2))
-    y[y < -10] = np.nan
+    for z in y:
+        if z < -100:
+            z = np.log(1/(2.4*np.pi))*-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2) + np.log(1/(0.32*np.pi))*-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2)
     return y
+
+# def L2(x1,x2):
+#     y = np.log(L(x1,x2))
+#     for z in range(len(y)):
+#           for j in range(len(y[z])):
+#               if y[z][j] < -100:
+#                 a = x1[z][j]
+#                 b = x2[z][j]
+#                 y[z][j] = np.log(1/(2.4*np.pi))*-1/2*(((a-2)/0.3)**2 + ((b-8)/4)**2) + np.log(1/(0.32*np.pi))*-1/2*(((a-7)/1)**2 + ((b-12)/0.16)**2)
+#                 #y[z][j] = 1
+#     #y[y < -10] = np.nan
+#     return y
 
 def draw_points(N, mean, cov):
     M = N//2
@@ -15,10 +29,12 @@ def draw_points(N, mean, cov):
     r2 = np.random.multivariate_normal(mean[1],cov[1],M).T
     return np.append(r1,r2, axis = 1)
 
-x1 = np.linspace(-10,20,1000)
-x2 = np.linspace(-5,20,1000)
-xx1, xx2 = np.meshgrid(x1,x2)
-y = L2(xx1,xx2)
+# x1 = np.linspace(-10,20,1000)
+# x2 = np.linspace(-5,20,1000)
+# xx1, xx2 = np.meshgrid(x1,x2)
+# y = L2(xx1,xx2)
+
+# print(y)
 
 y1_mean = [2,8]
 y1_cov = [[0.3**2,0],[0,4**2]]
@@ -29,7 +45,9 @@ y2_cov = [[1**2,0],[0,0.16**2]]
 mean = [y1_mean,y2_mean]
 cov = [y1_cov,y2_cov]
 
-points = draw_points(1000,mean,cov)
+points = draw_points(10,mean,cov)
+
+#xx1_sampled, xx2_sampled = np.meshgrid(points[0],points[1])
 
 y_sampled = L2(points[0],points[1])
 
