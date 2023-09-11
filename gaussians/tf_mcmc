@@ -14,15 +14,22 @@ def L(params):
 def logL(params):
     return tf.math.log(L(params))
 
-num_results = int(300)
-num_burnin_steps = int(50)
-num_chains = 1
+def logL2(params):
+    x1,x2 = params
+    z = tf.math.log(1/(2.4*np.pi)*tf.math.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2))+1/(0.32*np.pi)*tf.math.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2)))
+    if z < -100:
+        z = tf.math.log(1/(2.4*np.pi))*(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + tf.math.log(1/(0.32*np.pi))*(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
+    return z
+
+num_results = int(100)
+num_burnin_steps = int(100)
+num_chains = 10
 num_params = 2
 
 start = time.time()
 adaptive_hmc = tfp.mcmc.SimpleStepSizeAdaptation(
     tfp.mcmc.HamiltonianMonteCarlo(
-        target_log_prob_fn=logL,
+        target_log_prob_fn=logL2,
         num_leapfrog_steps=3,
         step_size=0.5),
     num_adaptation_steps=int(num_burnin_steps * 0.8))

@@ -1,0 +1,40 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def loge(params):
+    x,y = params
+    x,y = np.meshgrid(x,y)
+    zs = np.array([])
+    for i in range(len(x)):
+        for j in range(len(y)):
+            x1 = x[i][j]
+            x2 = y[i][j]
+            z = np.log(1/(2.4*np.pi)*np.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2))+1/(0.32*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2)))
+            if z < -100:
+               z = np.log(1/(2.4*np.pi)) + (-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + np.log(1/(0.32*np.pi)) + (-1/2*(((x1-7)/1)**2+((x2-12)/0.16)**2))
+            zs = np.append(zs,z)
+    return zs.reshape(len(x),len(y))
+
+def L(params):
+    x1, x2 = params
+    return 1/(2.4*np.pi)*np.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + 1/(0.32*np.pi)*np.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
+
+def logL(params):
+    return np.log(L(params))
+
+xs = np.linspace(-10,25,100)
+ys = np.linspace(-5,20,100)
+
+xxs, yys = np.meshgrid(xs,ys)
+params = xs,ys
+
+zs = loge(params)
+zLs = logL((xxs,yys))
+
+plt.pcolormesh(xxs,yys,zs)
+plt.colorbar()
+plt.show()
+
+plt.pcolormesh(xxs,yys,zLs)
+plt.colorbar()
+plt.show()
