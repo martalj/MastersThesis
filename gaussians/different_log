@@ -31,10 +31,12 @@ params = xs,ys
 zs = loge(params)
 zLs = logL((xxs,yys))
 
+print(zs,zLs)
+
 plt.pcolormesh(xxs,yys,zs)
 plt.colorbar()
 plt.show()
 
-plt.pcolormesh(xxs,yys,zLs)
-plt.colorbar()
-plt.show()
+# plt.pcolormesh(xxs,yys,zLs)
+# plt.colorbar()
+# plt.show()

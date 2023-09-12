@@ -18,12 +18,12 @@ def logL2(params):
     x1,x2 = params
     z = tf.math.log(1/(2.4*np.pi)*tf.math.exp(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2))+1/(0.32*np.pi)*tf.math.exp(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2)))
     if z < -100:
-        z = tf.math.log(1/(2.4*np.pi))*(-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + tf.math.log(1/(0.32*np.pi))*(-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
+        z = tf.math.log(1/(2.4*np.pi)) + (-1/2*(((x1-2)/0.3)**2 + ((x2-8)/4)**2)) + tf.math.log(1/(0.32*np.pi)) + (-1/2*(((x1-7)/1)**2 + ((x2-12)/0.16)**2))
     return z
 
-num_results = int(100)
+num_results = int(1000)
 num_burnin_steps = int(100)
-num_chains = 10
+num_chains = 32
 num_params = 2
 
 start = time.time()
@@ -38,8 +38,8 @@ adaptive_hmc = tfp.mcmc.SimpleStepSizeAdaptation(
 #@tf.function
 def run_chain():
   # Run the chain (with burn-in).
-  #current_state = tf.random.uniform([num_params],-10.,20.)
-  current_state = tf.constant([1.5,6.5])
+  current_state = tf.random.uniform([num_params],-10.,20.)
+  #current_state = tf.constant([1.5,6.5])
   samples, is_accepted = tfp.mcmc.sample_chain(
       num_results=num_results,
       num_burnin_steps=num_burnin_steps,
@@ -66,7 +66,7 @@ samples = tf.reshape(samples, [num_results*num_chains,num_params])
 #     sample_mean0.numpy(), sample_stddev0.numpy(), is_accepted.numpy()))
 # print('mean1:{:.4f}  stddev1:{:.4f}  acceptance:{:.4f}'.format(
 #     sample_mean1.numpy(), sample_stddev1.numpy(), is_accepted.numpy()))
-# print(f"Time take: {end-start}")
+print(f"Time take: {end-start}")
 
 
 plt.hist(samples[num_burnin_steps:,0], 100, histtype = 'step')
